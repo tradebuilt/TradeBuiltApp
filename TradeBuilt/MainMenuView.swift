@@ -1,5 +1,5 @@
 //
-//  ContentView.swift
+//  MainMenuView.swift
 //  HVAC Field Calculators
 //
 //  Created by Freedom Mechanical LLC on 9/20/25.
@@ -8,7 +8,7 @@
 import SwiftUI
 import Combine
 
-struct ContentView: View {
+struct MainMenuView: View {
     @State private var showSplash: Bool = true
     @State private var overlayOpacity: Double = 1
     @State private var contentOpacity: Double = 0
@@ -68,7 +68,7 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
+    MainMenuView()
 }
 
 // MARK: - Models
@@ -351,4 +351,5 @@ struct SplashView: View {
         }
     }
 }
+
 
