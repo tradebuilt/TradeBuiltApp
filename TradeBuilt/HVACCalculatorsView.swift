@@ -10,6 +10,7 @@ import SwiftUI
 struct HVACCalculatorsView: View {
     @State private var playAnimDeltaT: Bool = false
     @State private var isTempSectionExpanded: Bool = true
+    @State private var navigateDeltaT: Bool = false
     var body: some View {
         ZStack {
             LinearGradient(colors: [
@@ -48,6 +49,9 @@ struct HVACCalculatorsView: View {
                                 playAnimDeltaT = false
                             }
                         }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.36) {
+                            navigateDeltaT = true
+                        }
                     } label: {
                         HVACCategoryButton(width: 300, animate: playAnimDeltaT, title: "Delta T (Δ)")
                     }
@@ -59,6 +63,9 @@ struct HVACCalculatorsView: View {
         }
         .navigationTitle("HVAC Calculators")
         .navigationBarTitleDisplayMode(.inline)
+        .navigationDestination(isPresented: $navigateDeltaT) {
+            DeltaTCalculatorView()
+        }
     }
 }
 
