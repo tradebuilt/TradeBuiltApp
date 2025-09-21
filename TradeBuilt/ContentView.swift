@@ -12,7 +12,6 @@ struct ContentView: View {
     @State private var showSplash: Bool = true
     @State private var overlayOpacity: Double = 1
     @State private var contentOpacity: Double = 0
-    @State private var splashOpacity: Double = 0
     @State private var navPath: NavigationPath = NavigationPath()
 
     // Removed grid/placeholder data now that selection flow is disabled
@@ -182,6 +181,7 @@ struct PressableCardStyle: ButtonStyle {
 struct HVACCategoryButton: View {
     var width: CGFloat = 180
     var animate: Bool = false
+    var title: String = "Skilled Trades Calculators"
 
     var body: some View {
         ZStack {
@@ -255,7 +255,7 @@ struct HVACCategoryButton: View {
                 )
 
             // Text
-            Text("Skilled Trades Calculators")
+            Text(title)
                 .font(.headline)
                 .fontWeight(.semibold)
                 .foregroundStyle(.white)

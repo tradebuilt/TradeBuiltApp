@@ -1,5 +1,5 @@
 //
-//  SkilledTradesCalculatorsView.swift
+//  HVACCalculatorsView.swift
 //  TradeBuilt
 //
 //  Created by Freedom Mechanical LLC on 9/21/25.
@@ -7,9 +7,8 @@
 
 import SwiftUI
 
-struct SkilledTradesCalculatorsView: View {
-    @State private var playAnim: Bool = false
-    @State private var navigate: Bool = false
+struct HVACCalculatorsView: View {
+    @State private var playAnimDeltaT: Bool = false
     var body: some View {
         ZStack {
             LinearGradient(colors: [
@@ -19,38 +18,30 @@ struct SkilledTradesCalculatorsView: View {
             .ignoresSafeArea()
 
             VStack(spacing: 16) {
+                // Delta T (Δ) button
                 Button {
                     withAnimation(.spring(response: 0.22, dampingFraction: 0.7)) {
-                        playAnim = true
+                        playAnimDeltaT = true
                     }
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.22) {
                         withAnimation(.easeOut(duration: 0.12)) {
-                            playAnim = false
+                            playAnimDeltaT = false
                         }
                     }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.36) {
-                        navigate = true
-                    }
                 } label: {
-                    HVACCategoryButton(width: 300, animate: playAnim, title: "HVAC Calculators")
+                    HVACCategoryButton(width: 300, animate: playAnimDeltaT, title: "Delta T (Δ)")
                 }
                 .buttonStyle(.plain)
-
-                Spacer()
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            .padding(.top, 0)
         }
-        .navigationTitle("Skilled Trades Calculators")
+        .navigationTitle("HVAC Calculators")
         .navigationBarTitleDisplayMode(.inline)
-        .navigationDestination(isPresented: $navigate) {
-            HVACCalculatorsView()
-        }
     }
 }
 
 #Preview {
-    NavigationStack { SkilledTradesCalculatorsView() }
+    NavigationStack { HVACCalculatorsView() }
 }
 
 
