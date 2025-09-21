@@ -13,31 +13,16 @@ struct ContentView: View {
     @State private var overlayOpacity: Double = 1
     @State private var contentOpacity: Double = 0
     @State private var splashOpacity: Double = 0
+    @State private var navPath: NavigationPath = NavigationPath()
 
-    private let columns: [GridItem] = [
-        GridItem(.flexible(), spacing: 16),
-        GridItem(.flexible(), spacing: 16)
-    ]
-
-    private let calculators: [Calculator] = [
-        Calculator(title: "CFM Calculator", systemImage: "wind", color: .teal, description: "Airflow by BTU/Ton"),
-        Calculator(title: "Duct Sizing", systemImage: "rectangle.grid.2x2", color: .blue, description: "By CFM & Velocity"),
-        Calculator(title: "Superheat", systemImage: "thermometer", color: .orange, description: "Fixed orifice"),
-        Calculator(title: "Subcooling", systemImage: "snowflake", color: .indigo, description: "TXV charging"),
-        Calculator(title: "Static Pressure", systemImage: "gauge", color: .purple, description: "ESP & ΔP"),
-        Calculator(title: "Line Set", systemImage: "wrench", color: .pink, description: "Sizing & drop"),
-        Calculator(title: "Humidity", systemImage: "drop", color: .green, description: "RH & grains"),
-        Calculator(title: "Capacity", systemImage: "chart.bar", color: .red, description: "BTU & tons"),
-        Calculator(title: "Placeholder 1", systemImage: "hammer", color: .gray.opacity(0.85), description: nil),
-        Calculator(title: "Placeholder 2", systemImage: "slider.horizontal.3", color: .gray.opacity(0.7), description: nil)
-    ]
+    // Removed grid/placeholder data now that selection flow is disabled
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navPath) {
             ZStack {
                 BackgroundView()
                 VStack(alignment: .leading, spacing: 20) {
-                    HeaderTitleView()
+                    HeaderTitleView(navigateToHVAC: { navPath.append(Route.hvac) })
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .padding(.horizontal, 20)
@@ -53,6 +38,12 @@ struct ContentView: View {
                     .opacity(overlayOpacity)
                     .transition(.opacity)
                     .zIndex(1)
+                }
+            }
+            .navigationDestination(for: Route.self) { route in
+                switch route {
+                case .hvac:
+                    HVACCalculatorsView()
                 }
             }
             .onAppear {
@@ -83,13 +74,7 @@ struct ContentView: View {
 
 // MARK: - Models
 
-struct Calculator: Identifiable, Hashable {
-    let id: UUID = UUID()
-    let title: String
-    let systemImage: String
-    let color: Color
-    let description: String?
-}
+// Removed Calculator model (not used in the current design)
 
 // MARK: - Views
 
@@ -103,7 +88,13 @@ struct BackgroundView: View {
     }
 }
 
+enum Route: Hashable {
+    case hvac
+}
+
 struct HeaderTitleView: View {
+    @State private var playHVACAnim: Bool = false
+    var navigateToHVAC: () -> Void = {}
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
             Image("TradeBuilt Logo 2")
@@ -116,9 +107,29 @@ struct HeaderTitleView: View {
             LaserLineView()
                 .frame(width: 320)
                 .padding(.top, -108)
+            Button {
+                withAnimation(.spring(response: 0.22, dampingFraction: 0.7)) {
+                    playHVACAnim = true
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.22) {
+                    withAnimation(.easeOut(duration: 0.12)) {
+                        playHVACAnim = false
+                    }
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.36) {
+                    navigateToHVAC()
+                }
+            } label: {
+                HVACCategoryButton(width: 320, animate: playHVACAnim)
+            }
+            .buttonStyle(.plain)
+            .padding(.top, -80)
+            .frame(maxWidth: .infinity, alignment: .center)
         }
     }
 }
+
+// Removed old CategoriesView and CategoryButtonLabel per updated design
 
 struct LaserLineView: View {
     private let thickness: CGFloat = 4
@@ -152,70 +163,9 @@ struct LaserLineView: View {
     }
 }
 
-struct CalculatorCard: View {
-    let item: Calculator
+// Removed CalculatorCard (not used in the current design)
 
-    var body: some View {
-        ZStack(alignment: .topLeading) {
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(LinearGradient(colors: [
-                    item.color.opacity(0.95),
-                    item.color.opacity(0.7)
-                ], startPoint: .topLeading, endPoint: .bottomTrailing))
-            VStack(alignment: .leading, spacing: 8) {
-                Image(systemName: item.systemImage)
-                    .font(.system(size: 28, weight: .semibold))
-                    .foregroundStyle(.white)
-                Text(item.title)
-                    .font(.headline)
-                    .fontWeight(.medium)
-                    .foregroundStyle(.white)
-                    .lineLimit(2)
-                    .multilineTextAlignment(.leading)
-                if let desc = item.description {
-                    Text(desc)
-                        .font(.footnote)
-                        .foregroundStyle(.white.opacity(0.9))
-                }
-            }
-            .padding(16)
-        }
-        .frame(height: 120)
-        .shadow(color: item.color.opacity(0.28), radius: 10, x: 0, y: 8)
-        .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .strokeBorder(.white.opacity(0.15), lineWidth: 1)
-        )
-        .accessibilityElement(children: .combine)
-    }
-}
-
-struct CalculatorDetailView: View {
-    let item: Calculator
-
-    var body: some View {
-        VStack(spacing: 20) {
-            ZStack {
-                Circle()
-                    .fill(item.color.opacity(0.2))
-                    .frame(width: 140, height: 140)
-                Image(systemName: item.systemImage)
-                    .font(.system(size: 56, weight: .semibold))
-                    .foregroundStyle(item.color)
-            }
-            Text(item.title)
-                .font(.title.bold())
-            Text("Calculator coming soon")
-                .font(.callout)
-                .foregroundStyle(.secondary)
-            Spacer()
-        }
-        .padding()
-        .navigationTitle(item.title)
-        .navigationBarTitleDisplayMode(.inline)
-        .background(BackgroundView())
-    }
-}
+// Removed CalculatorDetailView (not used in the current design)
 
 // MARK: - Styles
 
@@ -228,6 +178,97 @@ struct PressableCardStyle: ButtonStyle {
             .animation(.spring(response: 0.16, dampingFraction: 0.75), value: configuration.isPressed)
     }
 }
+
+struct HVACCategoryButton: View {
+    var width: CGFloat = 180
+    var animate: Bool = false
+
+    var body: some View {
+        ZStack {
+            // Base shape
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(LinearGradient(colors: [
+                    Color(.systemGray6),
+                    Color(.systemGray3)
+                ], startPoint: .topLeading, endPoint: .bottomTrailing))
+                // Elevation shadows
+                .shadow(color: .black.opacity(0.28), radius: animate ? 10 : 16, x: 0, y: animate ? 6 : 12)
+                .shadow(color: .black.opacity(0.12), radius: animate ? 2 : 4, x: 0, y: animate ? 1 : 2)
+                .overlay(
+                    // Inner highlight for bevel effect
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .stroke(LinearGradient(colors: [
+                            .white.opacity(0.6),
+                            .white.opacity(0.08)
+                        ], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1.2)
+                        .blendMode(.overlay)
+                )
+                .overlay(
+                    // Subtle inner shadow look
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .stroke(.black.opacity(0.08), lineWidth: 1)
+                        .blur(radius: 1)
+                        .offset(y: 1)
+                        .mask(
+                            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                .fill(LinearGradient(colors: [.black, .clear], startPoint: .top, endPoint: .bottom))
+                        )
+                )
+                .overlay(
+                    // Directional inner shadow from top-left for depth
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .stroke(.black.opacity(0.06), lineWidth: 1)
+                        .blur(radius: 1.5)
+                        .offset(x: 0.5, y: 0.5)
+                        .mask(
+                            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                .fill(LinearGradient(colors: [.black, .clear], startPoint: .topLeading, endPoint: .bottomTrailing))
+                        )
+                )
+                .overlay(alignment: .top) {
+                    // Specular highlight (gloss) at the top
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .fill(LinearGradient(colors: [
+                            .white.opacity(0.35),
+                            .white.opacity(0.0)
+                        ], startPoint: .top, endPoint: .bottom))
+                        .frame(height: 22)
+                        .blur(radius: 2)
+                        .padding(.horizontal, 8)
+                        .offset(y: 4)
+                }
+                .overlay(alignment: .bottom) {
+                    // Bottom rim light for a 3D edge
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .stroke(LinearGradient(colors: [
+                            .clear,
+                            .black.opacity(0.22)
+                        ], startPoint: .top, endPoint: .bottom), lineWidth: 2)
+                        .blur(radius: 1)
+                        .opacity(0.8)
+                }
+                .overlay(
+                    // Animated glow when pressed
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .stroke(.white.opacity(animate ? 0.35 : 0.0), lineWidth: 3)
+                        .blur(radius: 3)
+                )
+
+            // Text
+            Text("HVAC Calculators")
+                .font(.headline)
+                .fontWeight(.semibold)
+                .foregroundStyle(.white)
+                .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 1) // text shadow
+        }
+        .frame(width: width, height: 56)
+        .scaleEffect(animate ? 0.96 : 1.0)
+        .animation(.spring(response: 0.22, dampingFraction: 0.7), value: animate)
+        .accessibilityElement(children: .combine)
+    }
+}
+
+// Removed HVACCategoryView per updated design
 
 // MARK: - Loading Bar
 struct LoadingBar: View {
