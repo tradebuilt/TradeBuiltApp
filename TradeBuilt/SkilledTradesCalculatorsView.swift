@@ -1,5 +1,5 @@
 //
-//  HVACCalculatorsView.swift
+//  SkilledTradesCalculatorsView.swift
 //  TradeBuilt
 //
 //  Created by Freedom Mechanical LLC on 9/21/25.
@@ -7,9 +7,9 @@
 
 import SwiftUI
 
-struct HVACCalculatorsView: View {
+struct SkilledTradesCalculatorsView: View {
     var body: some View {
-        Text("HVAC Calculators")
+        Text("Skilled Trades Calculators")
             .font(.title2)
             .foregroundStyle(.secondary)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -20,13 +20,13 @@ struct HVACCalculatorsView: View {
                 ], startPoint: .topLeading, endPoint: .bottomTrailing)
                 .ignoresSafeArea()
             )
-            .navigationTitle("HVAC Calculators")
+            .navigationTitle("Skilled Trades Calculators")
             .navigationBarTitleDisplayMode(.inline)
     }
 }
 
 #Preview {
-    NavigationStack { HVACCalculatorsView() }
+    NavigationStack { SkilledTradesCalculatorsView() }
 }
 
 

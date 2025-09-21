@@ -43,7 +43,7 @@ struct ContentView: View {
             .navigationDestination(for: Route.self) { route in
                 switch route {
                 case .hvac:
-                    HVACCalculatorsView()
+                    SkilledTradesCalculatorsView()
                 }
             }
             .onAppear {
@@ -255,7 +255,7 @@ struct HVACCategoryButton: View {
                 )
 
             // Text
-            Text("HVAC Calculators")
+            Text("Skilled Trades Calculators")
                 .font(.headline)
                 .fontWeight(.semibold)
                 .foregroundStyle(.white)
